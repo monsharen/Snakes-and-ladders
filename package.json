@@ -1,0 +1,12 @@
+{
+  "name": "randonnee",
+  "version": "1.0.0",
+  "description": "Snakes and ladders regrown as a mountain walk. A static, offline-capable mobile game.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node tools/simulate.mjs 500"
+  },
+  "license": "MIT"
+}

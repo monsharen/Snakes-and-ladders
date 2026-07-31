@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Randonnée — a trail game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="description" content="Randonnée — snakes and ladders regrown as a mountain walk. Roll, climb, and try to reach the summit before the weather does.">
+<meta name="theme-color" content="#0C100D">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Randonnée">
+<meta property="og:title" content="Randonnée">
+<meta property="og:description" content="Snakes and ladders regrown as a mountain walk. 61 waypoints, 820 m to 3 240 m.">
+<meta property="og:type" content="website">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./assets/icon-192.png">
+<link rel="stylesheet" href="./styles/main.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <header class="topbar">
+    <button class="icon-btn" id="menuBtn" aria-label="Menu" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="brand">
+      <h1>Randonnée</h1>
+      <p id="brandSub">Le Sommet · 3 240 m</p>
+    </div>
+    <button class="icon-btn" id="journalBtn" aria-label="Trail journal" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+    </button>
+  </header>
+
+  <main class="stage">
+    <div class="board-scroll" id="boardScroll">
+      <div class="board-holder" id="boardHolder"></div>
+    </div>
+
+    <div class="altimeter" id="altimeter" aria-hidden="true"></div>
+
+    <button class="ticker" id="ticker" type="button" aria-label="Open trail journal">
+      <span class="ticker-text" id="tickerText">The trailhead. Boots on, map folded to the first panel.</span>
+    </button>
+
+    <button class="recentre" id="recentreBtn" type="button" aria-label="Recentre on the active hiker">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    </button>
+  </main>
+
+  <footer class="dock">
+    <div class="party" id="party"></div>
+
+    <div class="action" id="action">
+      <div class="die" id="die" aria-hidden="true"></div>
+      <button class="roll" id="rollBtn" type="button">
+        <span class="roll-name" id="rollName">Roll</span>
+        <span class="roll-sub" id="rollSub">tap to set off</span>
+      </button>
+    </div>
+
+    <div class="grit-bar" id="gritBar" hidden>
+      <p class="grit-prompt" id="gritPrompt">You rolled 4. Spend a grit?</p>
+      <div class="grit-actions">
+        <button class="grit-btn" data-grit="minus" type="button"><b>−1</b><small id="gritMinusLbl">walk 3</small></button>
+        <button class="grit-btn" data-grit="reroll" type="button"><b>Again</b><small>reroll</small></button>
+        <button class="grit-btn" data-grit="plus" type="button"><b>+1</b><small id="gritPlusLbl">walk 5</small></button>
+        <button class="grit-btn keep" data-grit="keep" type="button"><b>Keep</b><small>save it</small></button>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ───────────── trail journal ───────────── -->
+<div class="scrim" id="scrim" hidden></div>
+
+<section class="sheet" id="journalSheet" role="dialog" aria-modal="true" aria-labelledby="journalTitle" hidden>
+  <header class="sheet-head">
+    <div>
+      <h2 id="journalTitle">Trail journal</h2>
+      <p class="sheet-sub" id="journalSub">Round 1</p>
+    </div>
+    <button class="icon-btn" data-close="journalSheet" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+  <ol class="journal" id="journal"></ol>
+</section>
+
+<!-- ───────────── menu ───────────── -->
+<section class="sheet" id="menuSheet" role="dialog" aria-modal="true" aria-labelledby="menuTitle" hidden>
+  <header class="sheet-head">
+    <div>
+      <h2 id="menuTitle">The walk</h2>
+      <p class="sheet-sub">Rules, sound, and starting over</p>
+    </div>
+    <button class="icon-btn" data-close="menuSheet" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+
+  <div class="sheet-body">
+    <label class="switch">
+      <span><b>Grit</b><small>Earn it at refuges. Spend it to nudge a roll or roll again.</small></span>
+      <input type="checkbox" id="optGrit" checked>
+      <i></i>
+    </label>
+    <label class="switch">
+      <span><b>Exact summit</b><small>Overshoot and you walk back down the far side.</small></span>
+      <input type="checkbox" id="optExact" checked>
+      <i></i>
+    </label>
+    <label class="switch">
+      <span><b>Sixes go again</b><small>Three in a row and the altitude catches you.</small></span>
+      <input type="checkbox" id="optSixes" checked>
+      <i></i>
+    </label>
+    <label class="switch">
+      <span><b>Sound</b><small>Boots, dice, and the odd rockfall.</small></span>
+      <input type="checkbox" id="optSound" checked>
+      <i></i>
+    </label>
+
+    <p class="hint">Rule changes take effect on the next walk.</p>
+
+    <div class="sheet-actions">
+      <button class="btn ghost" id="howBtn" type="button">How it works</button>
+      <button class="btn" id="newWalkBtn" type="button">New walk</button>
+    </div>
+
+    <div class="legend" id="legend">
+      <h3>On the map</h3>
+      <ul>
+        <li><i class="sw up"></i><span><b>Ascents</b> — via ferrata, fixed ropes, the last cable car. They carry you up.</span></li>
+        <li><i class="sw down"></i><span><b>Descents</b> — rockfall, crevasse, whiteout. They carry you down.</span></li>
+        <li><i class="sw refuge"></i><span><b>Refuges</b> — soup, and one grit.</span></li>
+        <li><i class="sw view"></i><span><b>Viewpoints</b> — nothing but the view.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── setup ───────────── -->
+<section class="sheet setup" id="setupSheet" role="dialog" aria-modal="true" aria-labelledby="setupTitle" hidden>
+  <header class="sheet-head">
+    <div>
+      <h2 id="setupTitle">The party</h2>
+      <p class="sheet-sub">Who is walking today?</p>
+    </div>
+  </header>
+
+  <div class="sheet-body">
+    <div class="seg" id="countSeg" role="group" aria-label="Number of hikers">
+      <button type="button" data-count="2">2</button>
+      <button type="button" data-count="3">3</button>
+      <button type="button" data-count="4">4</button>
+    </div>
+    <div class="hikers" id="hikers"></div>
+    <div class="sheet-actions">
+      <button class="btn wide" id="startBtn" type="button">Set off</button>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── summit ───────────── -->
+<section class="sheet summit-sheet" id="winSheet" role="dialog" aria-modal="true" aria-labelledby="winTitle" hidden>
+  <div class="sheet-body">
+    <p class="win-kicker">3 240 m</p>
+    <h2 id="winTitle">Someone made it</h2>
+    <p class="win-blurb" id="winBlurb"></p>
+    <dl class="win-stats" id="winStats"></dl>
+    <div class="sheet-actions">
+      <button class="btn ghost" id="winCloseBtn" type="button">Look at the map</button>
+      <button class="btn" id="winAgainBtn" type="button">Walk again</button>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
