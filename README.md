@@ -2,6 +2,8 @@
 
 Snakes and ladders, regrown as a mountain walk. Built for a phone.
 
+**[Play it →](https://monsharen.github.io/Snakes-and-ladders/)**
+
 The board is not a 10×10 grid. It is a switchback trail of **61 waypoints**
 climbing from a valley trailhead at 820 m to a summit cairn at 3 240 m,
 through five terrain bands — valley, forest, high pasture, scree, glacier —
